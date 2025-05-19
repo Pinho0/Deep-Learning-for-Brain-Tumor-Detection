@@ -2,6 +2,7 @@
 
 1. [Dataset Description](#dataset-description-and-cleaning)
 2. [EDA (Exploratory Data Analysis)](#eda-exploratory-data-analysis)
+3. [Model Training](#model-training)
 
 ## Dataset Description and Cleaning
 
@@ -50,4 +51,31 @@ Validation Set Distribution:
 ![Local Image](./images/validation.png)
 
 The validation dataset follows a similar pattern, with "no tumor" having more samples than the tumor classes. While the imbalance is not extreme, it’s important to keep this in mind during training and evaluation to avoid bias in model predictions.
+
+## Model Training
+
+We implemented a Convolutional Neural Network (CNN) using PyTorch to classify brain MRI images into four categories: glioma, meningioma, pituitary, and no tumor.
+The CNN consists of three convolutional blocks followed by a fully connected classifier:
+
+- Conv Layer 1: 64 filters, kernel size 3x3, ReLU activation, followed by 2x2 MaxPooling
+- Conv Layer 2: 32 filters, kernel size 3x3, ReLU activation, followed by 2x2 MaxPooling
+- Conv Layer 3: 16 filters, kernel size 3x3, ReLU activation, followed by 2x2 MaxPooling
+
+After the convolutional blocks, the feature maps are flattened and passed through three fully connected layers: the first goes from 12544 to 64 units, the second from 64 to 32, and the final layer outputs 4 logits corresponding to the classes.
+
+For training, we used the CrossEntropyLoss function, which is suitable for multi-class classification. The optimizer chosen was Adam with a learning rate of 0.001. A StepLR scheduler was used to reduce the learning rate by a factor of 0.1 every 10 epochs to improve performance during the later stages of training. We trained the model with a batch size of 32 for 20 epochs.
+
+To improve training efficiency and avoid overfitting, we incorporated model checkpointing and early stopping. The model is saved whenever the validation loss reaches a new minimum. Additionally, if the validation loss does not improve for five consecutive epochs, the training process is stopped early.
+
+Throughout the training, accuracy and loss are monitored on both the training and validation datasets. These metrics help assess the model's performance and ensure it is learning appropriately. The implementation is modular, making it easy to modify the architecture, hyperparameters, or dataset setup.
+
+Below are the training and validation results from the first five epochs:
+| Epoch         |	Training Loss | Training accuracy | Validation loss |  Validation accurac                                                 
+|-----------------|-------------------|----------------|-------------------|-------------------|
+|1  | 0.3972 | 83.5021% | 0.5090 |  77.6677%  |
+|2  | 0.2174 | 91.5852% | 0.3436 |  85.9756%  |
+|3  | 0.1181 | 96.3513% | 0.2170 |  92.0732%  |
+|4  | 0.1003 | 96.2116% | 0.2001 |  92.3018%  |
+|5  | 0.0659 | 98.0622% | 0.1816 |  93.2927%  |
+
 
